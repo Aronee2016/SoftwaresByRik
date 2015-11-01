@@ -1,0 +1,301 @@
+CODE FOR TI 
+Code for the Module:
+
+#include <Servo.h>
+#include<energia.h>
+#include <LiquidCrystal.h>
+Servo myservo_side,myservo_front_back,myservo_clutch; 
+LiquidCrystal lcd(P2_2, P2_3, P2_4, P3_0, P3_1, P3_2, P3_3, P3_4, P3_5, P3_6, P3_7
+int pos = 0;    
+unsigned long frequency;
+float duration;
+int current_gear,counter,clutch;
+byte up_arrow[8] = {          // used for up arrow display
+B00100,
+B01110,
+B10101,
+B00100,
+B00100,
+B00100,
+B00100,
+B00100
+};
+byte down_arrow[8] = {      // used for down arrow display
+B00100,
+B00100,
+B00100,
+B00100,
+B00100,
+B10101,
+B01110,
+B00100,
+};
+void setup()
+{
+myservo_side.attach(9);  
+myservo_front_back.attach(10);
+myservo_clutch.attach(11);
+pos=0;                                
+myservo_side.write(pos);             
+delay(2000);   
+pos=95;                          
+myservo_front_back.write(pos);             
+delay(2000);
+pos=0;                          
+myservo_clutch.write(pos);             
+delay(2000);
+lcd.begin(16, 4);           
+current_gear=0;
+}
+void print_car_details(int speed_car,int gear)
+{
+if(gear==1)
+{
+lcd.setCursor(0,0);
+lcd.print("SHIFT");
+lcd.setCursor(0,1);
+lcd.print("Mode:Auto      1 3 5");
+lcd.setCursor(0,2);
+lcd.print("Speed:0-15Kmph  ++++");
+lcd.setCursor(15,2);
+lcd.write(byte(0));
+String speed_string=String(speed_car);
+lcd.createChar(0, up_arrow);
+lcd.setCursor(6,2);
+lcd.print(speed_string);
+}
+if(gear==2)
+{
+lcd.setCursor(0,0);
+lcd.print("SHIFT");
+lcd.setCursor(0,1);
+lcd.print("Mode:Auto      1 3 5");
+lcd.setCursor(0,2);
+lcd.print("Speed:15-25Kmph ++++");
+String speed_string=String(speed_car);
+lcd.setCursor(6,2);
+lcd.print(speed_string);
+lcd.createChar(0, down_arrow);
+lcd.setCursor(15,2);
+lcd.write(byte(0));
+}
+if(gear==3)
+{
+lcd.setCursor(0,0);
+lcd.print("SHIFT");
+lcd.setCursor(0,1);
+lcd.print("Mode:Auto      1 3 5");
+lcd.setCursor(0,2);
+lcd.print("Speed:25-35Kmph++ ++");
+String speed_string=String(speed_car);
+lcd.setCursor(6,2);
+lcd.print(speed_string);
+lcd.createChar(0, up_arrow);
+lcd.setCursor(17,2);
+lcd.write(byte(0));
+}
+if(gear==4)
+{
+lcd.setCursor(0,0);
+lcd.print("SHIFT");
+lcd.createChar(0, down_arrow);
+lcd.setCursor(0,1);
+lcd.print("Mode:Auto      1 3 5");
+lcd.setCursor(0,2);
+lcd.print("Speed:35-50Kmph++ ++");
+String speed_string=String(speed_car);
+lcd.setCursor(6,2);
+lcd.print(speed_string);
+lcd.setCursor(17,2);
+lcd.write(byte(0));
+}
+if(gear==5)
+{
+lcd.setCursor(0,0);
+lcd.print("SHIFT");
+lcd.createChar(0, up_arrow);
+lcd.setCursor(0,1);
+lcd.print("Mode:Auto      1 3 5");
+lcd.setCursor(0,2);
+lcd.print("Speed:50-80Kmph ++++");
+String speed_string=String(speed_car);
+lcd.setCursor(6,2);
+lcd.print(speed_string);
+lcd.setCursor(19,2);
+lcd.write(byte(0));
+}
+lcd.setCursor(0,3);
+lcd.print("Gear:          2 4 R");
+String gear_string=String(gear);
+lcd.setCursor(5,3);
+lcd.print(gear_string);
+}
+void loop()
+{
+int speed_car=0;
+delay(25);
+{  
+current_gear=1;
+print_car_details(speed_car,current_gear);
+delay(10);
+for(pos = 0; pos < 90; pos += 1)            //apply clutch
+{ 
+delay(20);      
+myservo_clutch.write(pos);         
+delay(15);                       
+}
+pos=0;       
+myservo_side.write(pos);         
+delay(15);                       
+for(pos = 90; pos <= 115; pos+=1)   //push forward
+{                                
+myservo_front_back.write(pos);  
+delay(15);                       
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{         
+myservo_clutch.write(pos);           
+delay(20);     
+}
+}
+delay(40);
+{
+current_gear=2;
+print_car_details(speed_car,current_gear);
+for(pos = 0; pos < 90; pos += 1)  // apply clutch
+{ 
+myservo_clutch.write(pos);         
+delay(15);      
+}
+for(pos = 115; pos >=85; pos -= 1)  //bring stick back
+{                                 
+myservo_front_back.write(pos);  
+delay(15);                       
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{         
+myservo_clutch.write(pos);         
+delay(15);      
+}
+}
+//gear 3
+delay(40);
+{
+current_gear=3;
+print_car_details(speed_car,current_gear);
+delay(20);
+for(pos = 0; pos < 90; pos += 1)  // apply clutch
+{  
+myservo_clutch.write(pos);         
+delay(15);     
+}
+for(pos = 85; pos<= 95; pos += 1)  
+{                                
+myservo_front_back.write(pos);       
+delay(15);                       
+}
+for(pos = 0; pos <=90; pos+=1)   
+{                                
+myservo_side.write(pos);           
+delay(15);                      
+}
+for(pos = 95; pos <= 115; pos += 1)       
+{                                
+myservo_front_back.write(pos); 
+delay(15);                      
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{   
+clutch=0;       
+myservo_clutch.write(pos);         
+delay(15);   
+} 
+}              
+//gear4
+delay(40);
+{
+current_gear=4;
+print_car_details(speed_car,current_gear);
+delay(20);
+for(pos = 0; pos < 90; pos += 1)  // apply clutch
+{     
+clutch=1;       
+myservo_clutch.write(pos);         
+delay(15);       
+}
+for(pos = 115; pos >= 85; pos -= 1) 
+{                                
+myservo_front_back.write(pos); 
+delay(15);                      
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{   
+clutch=0;       
+myservo_clutch.write(pos);         
+delay(15);      
+}
+}
+//gear 5
+delay(40);
+{
+current_gear=5;
+print_car_details(speed_car,current_gear);
+delay(20);
+for(pos = 0; pos < 90; pos += 1)  // apply clutch
+{   
+clutch=1;       
+myservo_clutch.write(pos);         
+delay(15);      
+}
+for(pos = 85; pos <= 95; pos += 1)  
+{                                
+myservo_front_back.write(pos);       
+delay(15);                       
+}
+for(pos = 90; pos <= 180; pos+=1)   
+{                                
+myservo_side.write(pos);           
+delay(15);                      
+}
+for(pos = 95; pos <= 115; pos += 1)       
+{                                
+myservo_front_back.write(pos); 
+delay(15);                      
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{    
+clutch=0;       
+myservo_clutch.write(pos);         
+delay(15); 
+}
+}
+//gear 5
+delay(40);
+{
+print_car_details(speed_car,current_gear);
+delay(20);
+for(pos = 0; pos < 90; pos += 1)  // apply clutch
+{   
+clutch=1;       
+myservo_clutch.write(pos);         
+delay(15);       
+}
+for(pos = 95; pos >= 90; pos -= 1)  
+{                                
+myservo_front_back.write(pos);       
+delay(15);                       
+}
+for(pos = 180; pos >=0; pos-=1)   
+{                                
+myservo_side.write(pos);           
+delay(15);                      
+}
+for(pos = 90; pos > 0; pos -= 1)  //release clutch
+{    
+clutch=0;       
+myservo_clutch.write(pos);         
+delay(15);
+}
+}
+}
+
